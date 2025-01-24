@@ -2,8 +2,6 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
-# import langdetect
-import langid  # 언어 감지를 위한 대체 라이브러리
 
 # Load API key from .env file
 load_dotenv()
@@ -14,7 +12,7 @@ if not api_key:
     st.stop()
 
 # Set OpenAI API key
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=api_key)
 
 # Streamlit UI
 st.title("AI 시 생성기 🌟")
@@ -28,25 +26,12 @@ if st.button("시 생성"):
     if user_input.strip():
         with st.spinner("AI가 시를 작성 중입니다..."):
             try:
-                # 언어 감지 (langdetect 사용)
-                # detected_language = langdetect.detect(user_input)
-                # 언어 감지 (langid 사용)
-                detected_language, confidence = langid.classify(user_input)
-
-                # 언어별 system 메시지 설정
-                if detected_language == "ko":  # 한글
-                    system_message = "당신은 아름다운 시를 창작하는 시인입니다."
-                    user_prompt = f"{user_input}에 대한 시를 작성해 주세요."
-                else:  # 영어 또는 기타 언어
-                    system_message = "You are a poet who creates beautiful and inspiring poems."
-                    user_prompt = f"Write a poem about {user_input}."
-
-                # OpenAI ChatCompletion 요청
+                # OpenAI ChatCompletion으로 언어 감지 및 시 생성
                 response = client.chat.completions.create(
                     model="gpt-4",  # 또는 "gpt-3.5-turbo"
                     messages=[
-                        {"role": "system", "content": system_message},
-                        {"role": "user", "content": user_prompt}
+                        {"role": "system", "content": "You are a poet who writes poems in the language of the user's input."},
+                        {"role": "user", "content": f"Write a poem about '{user_input}'."}
                     ],
                     temperature=0.7,
                     max_tokens=150
