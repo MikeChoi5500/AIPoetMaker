@@ -1,8 +1,9 @@
-import langdetect
 import streamlit as st
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+# import langdetect
+import langid  # 언어 감지를 위한 대체 라이브러리
 
 # Load API key from .env file
 load_dotenv()
@@ -27,8 +28,10 @@ if st.button("시 생성"):
     if user_input.strip():
         with st.spinner("AI가 시를 작성 중입니다..."):
             try:
-                # 언어 감지
-                detected_language = langdetect.detect(user_input)
+                # 언어 감지 (langdetect 사용)
+                # detected_language = langdetect.detect(user_input)
+                # 언어 감지 (langid 사용)
+                detected_language, confidence = langid.classify(user_input)
 
                 # 언어별 system 메시지 설정
                 if detected_language == "ko":  # 한글
